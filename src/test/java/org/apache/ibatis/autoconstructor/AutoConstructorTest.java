@@ -37,6 +37,7 @@ public class AutoConstructorTest {
   @BeforeAll
   public static void setUp() throws Exception {
     // create a SqlSessionFactory
+    // commit
     try (Reader reader = Resources.getResourceAsReader("org/apache/ibatis/autoconstructor/mybatis-config.xml")) {
       sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
     }
