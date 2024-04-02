@@ -46,25 +46,42 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
  */
 public class Reflector {
 
+  //反射对象类型
   private final Class<?> type;
+  //可读字段
   private final String[] readablePropertyNames;
+  //可写字段
   private final String[] writeablePropertyNames;
+  //set方法集合
   private final Map<String, Invoker> setMethods = new HashMap<>();
+  //get方法集合
   private final Map<String, Invoker> getMethods = new HashMap<>();
+  //set方法参数类型集合
   private final Map<String, Class<?>> setTypes = new HashMap<>();
+  //get方法参数类型集合
   private final Map<String, Class<?>> getTypes = new HashMap<>();
+  //默认构造方法
   private Constructor<?> defaultConstructor;
 
+  //不区分大小写字段集合
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
   public Reflector(Class<?> clazz) {
+    //设置对应类
     type = clazz;
+    //设置默认构造函数，为默认无参构造函数
     addDefaultConstructor(clazz);
+    //设置get方法集合
     addGetMethods(clazz);
+    //设置set方法集合
     addSetMethods(clazz);
+    //添加字段
     addFields(clazz);
+    //设置可读字段
     readablePropertyNames = getMethods.keySet().toArray(new String[getMethods.keySet().size()]);
+    //设置可写字段
     writeablePropertyNames = setMethods.keySet().toArray(new String[setMethods.keySet().size()]);
+    //将相关字段全部设置为大写
     for (String propName : readablePropertyNames) {
       caseInsensitivePropertyMap.put(propName.toUpperCase(Locale.ENGLISH), propName);
     }
@@ -74,6 +91,7 @@ public class Reflector {
   }
 
   private void addDefaultConstructor(Class<?> clazz) {
+    //查找默认无参构造函数，如果不存在defaultConstructor返回为null
     Constructor<?>[] consts = clazz.getDeclaredConstructors();
     for (Constructor<?> constructor : consts) {
       if (constructor.getParameterTypes().length == 0) {
@@ -83,8 +101,10 @@ public class Reflector {
   }
 
   private void addGetMethods(Class<?> cls) {
+    //添加get方法
     Map<String, List<Method>> conflictingGetters = new HashMap<>();
     Method[] methods = getClassMethods(cls);
+    //遍历类方法，过滤get/is开头且无入参的方法，并解决冲突
     for (Method method : methods) {
       if (method.getParameterTypes().length > 0) {
         continue;
@@ -100,6 +120,7 @@ public class Reflector {
   }
 
   private void resolveGetterConflicts(Map<String, List<Method>> conflictingGetters) {
+    // 遍历每个属性，查找其最匹配的方法。因为子类可以覆写父类的方法，所以一个属性，可能对应多个 getting 方法
     for (Entry<String, List<Method>> entry : conflictingGetters.entrySet()) {
       Method winner = null;
       String propName = entry.getKey();
@@ -289,13 +310,16 @@ public class Reflector {
    * @return An array containing all methods in this class
    */
   private Method[] getClassMethods(Class<?> cls) {
+    // 每个方法签名与该方法的映射
     Map<String, Method> uniqueMethods = new HashMap<>();
     Class<?> currentClass = cls;
     while (currentClass != null && currentClass != Object.class) {
+      // 递归循环类，类的父类，类的父类的父类，直到父类为 Object
       addUniqueMethods(uniqueMethods, currentClass.getDeclaredMethods());
 
       // we also need to look for interface methods -
       // because the class may be abstract
+      //记录接口中定义的方法,
       Class<?>[] interfaces = currentClass.getInterfaces();
       for (Class<?> anInterface : interfaces) {
         addUniqueMethods(uniqueMethods, anInterface.getMethods());
