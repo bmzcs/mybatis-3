@@ -48,18 +48,18 @@ public class ManagedTransaction implements Transaction {
     this.closeConnection = closeConnection;
   }
 
-  public ManagedTransaction(DataSource ds, TransactionIsolationLevel level, boolean closeConnection) {
-    this.dataSource = ds;
-    this.level = level;
-    this.closeConnection = closeConnection;
-  }
-
   @Override
   public Connection getConnection() throws SQLException {
     if (this.connection == null) {
       openConnection();
     }
     return this.connection;
+  }
+
+  public ManagedTransaction(DataSource ds, TransactionIsolationLevel level, boolean closeConnection) {
+    this.dataSource = ds;
+    this.level = level;
+    this.closeConnection = closeConnection;
   }
 
   @Override

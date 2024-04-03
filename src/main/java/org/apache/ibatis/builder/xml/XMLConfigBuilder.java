@@ -52,9 +52,13 @@ import org.apache.ibatis.type.JdbcType;
  */
 public class XMLConfigBuilder extends BaseBuilder {
 
+  //是否已解析
   private boolean parsed;
+  //解析器
   private final XPathParser parser;
+  //环境？有什么用
   private String environment;
+  //反射工厂
   private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
   public XMLConfigBuilder(Reader reader) {
@@ -91,10 +95,12 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   public Configuration parse() {
+    //解析xml配置
     if (parsed) {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
     parsed = true;
+    //解析配置
     parseConfiguration(parser.evalNode("/configuration"));
     return configuration;
   }
@@ -102,6 +108,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void parseConfiguration(XNode root) {
     try {
       //issue #117 read properties first
+      //按照节点解析每个xml配置信息并填充到configuration里
       propertiesElement(root.evalNode("properties"));
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);

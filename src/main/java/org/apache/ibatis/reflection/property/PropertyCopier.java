@@ -29,6 +29,7 @@ public final class PropertyCopier {
   }
 
   public static void copyBeanProperties(Class<?> type, Object sourceBean, Object destinationBean) {
+    //属性复制
     Class<?> parent = type;
     while (parent != null) {
       final Field[] fields = parent.getDeclaredFields();
