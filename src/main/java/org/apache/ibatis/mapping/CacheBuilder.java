@@ -39,12 +39,19 @@ import org.apache.ibatis.reflection.SystemMetaObject;
  */
 public class CacheBuilder {
   private final String id;
+  //缓存实现类
   private Class<? extends Cache> implementation;
+  //缓存装饰器
   private final List<Class<? extends Cache>> decorators;
+  //缓存大小
   private Integer size;
+  //清理间隔
   private Long clearInterval;
+  //是否只读
   private boolean readWrite;
+  //其他配置
   private Properties properties;
+  //是否阻塞
   private boolean blocking;
 
   public CacheBuilder(String id) {
