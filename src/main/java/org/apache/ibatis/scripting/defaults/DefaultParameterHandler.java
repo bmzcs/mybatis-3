@@ -63,9 +63,11 @@ public class DefaultParameterHandler implements ParameterHandler {
     ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
     if (parameterMappings != null) {
+      //遍历参数
       for (int i = 0; i < parameterMappings.size(); i++) {
         ParameterMapping parameterMapping = parameterMappings.get(i);
         if (parameterMapping.getMode() != ParameterMode.OUT) {
+          //获取参数
           Object value;
           String propertyName = parameterMapping.getProperty();
           if (boundSql.hasAdditionalParameter(propertyName)) { // issue #448 ask first for additional params

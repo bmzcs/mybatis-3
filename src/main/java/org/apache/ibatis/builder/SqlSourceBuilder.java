@@ -33,6 +33,11 @@ import org.apache.ibatis.type.JdbcType;
  */
 public class SqlSourceBuilder extends BaseBuilder {
 
+  /**
+   * org.apache.ibatis.builder.SqlSourceBuilder ，
+   * 继承 BaseBuilder 抽象类，SqlSource 构建器，负责将 SQL 语句中的 #{} 替换成相应的 ? 占位符，并获取该 ? 占位符对应的
+   * org.apache.ibatis.mapping.ParameterMapping 对象。
+   */
   private static final String parameterProperties = "javaType,jdbcType,mode,numericScale,resultMap,typeHandler,jdbcTypeName";
 
   public SqlSourceBuilder(Configuration configuration) {
@@ -69,8 +74,11 @@ public class SqlSourceBuilder extends BaseBuilder {
     }
 
     private ParameterMapping buildParameterMapping(String content) {
+      //将表达式换位Map
       Map<String, String> propertiesMap = parseParameterMapping(content);
+      //字段名称
       String property = propertiesMap.get("property");
+      //对应的类型
       Class<?> propertyType;
       if (metaParameters.hasGetter(property)) { // issue #448 get type from additional params
         propertyType = metaParameters.getGetterType(property);
@@ -88,9 +96,11 @@ public class SqlSourceBuilder extends BaseBuilder {
           propertyType = Object.class;
         }
       }
+      //创建Builder对象
       ParameterMapping.Builder builder = new ParameterMapping.Builder(configuration, property, propertyType);
       Class<?> javaType = propertyType;
       String typeHandlerAlias = null;
+      //遍历对象属性，并设置对应的类型
       for (Map.Entry<String, String> entry : propertiesMap.entrySet()) {
         String name = entry.getKey();
         String value = entry.getValue();
@@ -118,6 +128,7 @@ public class SqlSourceBuilder extends BaseBuilder {
         }
       }
       if (typeHandlerAlias != null) {
+        //如果 typeHandlerAlias 非空，则获得对应的 TypeHandler 对象，并设置到 ParameterMapping.Builder 对象中
         builder.typeHandler(resolveTypeHandler(javaType, typeHandlerAlias));
       }
       return builder.build();

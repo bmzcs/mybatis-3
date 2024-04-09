@@ -34,6 +34,7 @@ import org.apache.ibatis.session.Configuration;
  */
 public class ProviderSqlSource implements SqlSource {
 
+  //基于注解的SqlSource
   private final Configuration configuration;
   private final SqlSourceBuilder sqlSourceParser;
   private final Class<?> providerType;

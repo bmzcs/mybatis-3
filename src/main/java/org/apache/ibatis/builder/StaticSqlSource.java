@@ -27,6 +27,7 @@ import org.apache.ibatis.session.Configuration;
  */
 public class StaticSqlSource implements SqlSource {
 
+  //静态sqlSource对象，仅包含 ？ 占位符
   private final String sql;
   private final List<ParameterMapping> parameterMappings;
   private final Configuration configuration;
