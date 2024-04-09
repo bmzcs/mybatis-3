@@ -22,9 +22,11 @@ import java.util.Map;
  * @author Frank D. Martinez [mnesarco]
  */
 public class LanguageDriverRegistry {
-
+  //语言驱动注册器
+  //语言Map
   private final Map<Class<? extends LanguageDriver>, LanguageDriver> LANGUAGE_DRIVER_MAP = new HashMap<>();
 
+  //默认四线类
   private Class<? extends LanguageDriver> defaultDriverClass;
 
   public void register(Class<? extends LanguageDriver> cls) {

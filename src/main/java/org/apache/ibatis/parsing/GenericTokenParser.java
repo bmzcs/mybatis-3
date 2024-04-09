@@ -34,7 +34,7 @@ public class GenericTokenParser {
     if (text == null || text.isEmpty()) {
       return "";
     }
-    // search open token
+    // search open token，判断节点是否包含openToken，如果不是，直接返回text
     int start = text.indexOf(openToken);
     if (start == -1) {
       return text;
@@ -44,6 +44,7 @@ public class GenericTokenParser {
     final StringBuilder builder = new StringBuilder();
     StringBuilder expression = null;
     while (start > -1) {
+      //循环遍历sql中包含token的位置并替换为实际的参数
       if (start > 0 && src[start - 1] == '\\') {
         // this open token is escaped. remove the backslash and continue.
         builder.append(src, offset, start - offset - 1).append(openToken);

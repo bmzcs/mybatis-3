@@ -31,6 +31,7 @@ import org.apache.ibatis.session.Configuration;
  */
 public class RawLanguageDriver extends XMLLanguageDriver {
 
+  //创建RawSqlSource对象的驱动实现类，确保创建对象是RawSqlSource，会调用父类的createSqlSource方法并校验是否是RawSqlSource,如果不是，则抛出异常
   @Override
   public SqlSource createSqlSource(Configuration configuration, XNode script, Class<?> parameterType) {
     SqlSource source = super.createSqlSource(configuration, script, parameterType);
