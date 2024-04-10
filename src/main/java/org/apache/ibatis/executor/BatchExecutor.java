@@ -40,6 +40,13 @@ import org.apache.ibatis.transaction.Transaction;
  */
 public class BatchExecutor extends BaseExecutor {
 
+  /**
+   * FROM 祖大俊 《Mybatis3.3.x技术内幕（四）：五鼠闹东京之执行器Executor设计原本》
+   *
+   * 执行update（没有select，JDBC批处理不支持select），将所有sql都添加到批处理中（addBatch()），等待统一执行（executeBatch()），
+   * 它缓存了多个Statement对象，每个Statement对象都是addBatch()完毕后，等待逐一执行executeBatch()批处理的；BatchExecutor相当于维护了多个桶
+   * ，每个桶里都装了很多属于自己的SQL，就像苹果蓝里装了很多苹果，番茄蓝里装了很多番茄，最后，再统一倒进仓库。（可以是Statement或PrepareStatement对象）
+   */
   public static final int BATCH_UPDATE_RETURN_VALUE = Integer.MIN_VALUE + 1002;
 
   private final List<Statement> statementList = new ArrayList<>();
@@ -58,6 +65,7 @@ public class BatchExecutor extends BaseExecutor {
     final BoundSql boundSql = handler.getBoundSql();
     final String sql = boundSql.getSql();
     final Statement stmt;
+    //如果是当前的sql，并且statement也一致取最后一个statement
     if (sql.equals(currentSql) && ms.equals(currentStatement)) {
       int last = statementList.size() - 1;
       stmt = statementList.get(last);
@@ -66,6 +74,7 @@ public class BatchExecutor extends BaseExecutor {
       BatchResult batchResult = batchResultList.get(last);
       batchResult.addParameterObject(parameterObject);
     } else {
+      //否则，创建新的statement并加入statementList
       Connection connection = getConnection(ms.getStatementLog());
       stmt = handler.prepare(connection, transaction.getTimeout());
       handler.parameterize(stmt);    //fix Issues 322
@@ -74,6 +83,7 @@ public class BatchExecutor extends BaseExecutor {
       statementList.add(stmt);
       batchResultList.add(new BatchResult(ms, sql, parameterObject));
     }
+    //批处理sql
     handler.batch(stmt);
     return BATCH_UPDATE_RETURN_VALUE;
   }

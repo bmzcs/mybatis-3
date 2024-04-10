@@ -81,6 +81,7 @@ public class ReuseExecutor extends BaseExecutor {
     Statement stmt;
     BoundSql boundSql = handler.getBoundSql();
     String sql = boundSql.getSql();
+    //获取sql，查看sql在缓存中存在，如果存在，从缓存中获取Statement对象，如果不存在则创建
     if (hasStatementFor(sql)) {
       stmt = getStatement(sql);
       applyTransactionTimeout(stmt);

@@ -32,36 +32,52 @@ import org.apache.ibatis.transaction.Transaction;
  */
 public interface Executor {
 
+  //空result对象枚举
   ResultHandler NO_RESULT_HANDLER = null;
 
+  //更新sql
   int update(MappedStatement ms, Object parameter) throws SQLException;
 
+  //查询sql，包含cacheKey和boundSql
   <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey cacheKey, BoundSql boundSql) throws SQLException;
 
+  //查询sql
   <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException;
 
+  //查询游标
   <E> Cursor<E> queryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds) throws SQLException;
 
+  //刷新状态
   List<BatchResult> flushStatements() throws SQLException;
 
+  //提交事务
   void commit(boolean required) throws SQLException;
 
+  //回滚事务
   void rollback(boolean required) throws SQLException;
 
+  //创建缓存key
   CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql);
 
+  //是否已经缓存
   boolean isCached(MappedStatement ms, CacheKey key);
 
+  //清除本地缓存
   void clearLocalCache();
 
+  //延迟加载
   void deferLoad(MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType);
 
+  //获取事务
   Transaction getTransaction();
 
+  //关闭执行器
   void close(boolean forceRollback);
 
+  //是否已关闭
   boolean isClosed();
 
+  //设置执行器包装类
   void setExecutorWrapper(Executor executor);
 
 }

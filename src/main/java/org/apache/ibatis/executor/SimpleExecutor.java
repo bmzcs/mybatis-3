@@ -42,13 +42,20 @@ public class SimpleExecutor extends BaseExecutor {
 
   @Override
   public int doUpdate(MappedStatement ms, Object parameter) throws SQLException {
+    //执行更新sql
     Statement stmt = null;
     try {
+      //获取配置
       Configuration configuration = ms.getConfiguration();
+      //创建执行StatementHandler，此处StatementHandler对象为RoutingStatementHandler，该对象持有delegate字段为实际的StatementHandler对象
       StatementHandler handler = configuration.newStatementHandler(this, ms, parameter, RowBounds.DEFAULT, null, null);
+      //获取Statement
       stmt = prepareStatement(handler, ms.getStatementLog());
+      //执行更新语句，此处执行的是insert、update、delete等操作
+
       return handler.update(stmt);
     } finally {
+      //关闭statement
       closeStatement(stmt);
     }
   }
@@ -57,11 +64,15 @@ public class SimpleExecutor extends BaseExecutor {
   public <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
     Statement stmt = null;
     try {
+      //执行查询
       Configuration configuration = ms.getConfiguration();
+      //获取StatementHandler
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
       stmt = prepareStatement(handler, ms.getStatementLog());
+      //执行查询
       return handler.query(stmt, resultHandler);
     } finally {
+      //关闭statement
       closeStatement(stmt);
     }
   }
