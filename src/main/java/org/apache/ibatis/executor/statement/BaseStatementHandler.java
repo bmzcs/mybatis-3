@@ -85,14 +85,19 @@ public abstract class BaseStatementHandler implements StatementHandler {
     ErrorContext.instance().sql(boundSql.getSql());
     Statement statement = null;
     try {
+      //初始化statement,有子类实现
       statement = instantiateStatement(connection);
+      //设置事务超时时间
       setStatementTimeout(statement, transactionTimeout);
+      //设置fetchSize
       setFetchSize(statement);
       return statement;
     } catch (SQLException e) {
+      //关闭statement
       closeStatement(statement);
       throw e;
     } catch (Exception e) {
+      //关闭statement
       closeStatement(statement);
       throw new ExecutorException("Error preparing statement.  Cause: " + e, e);
     }
