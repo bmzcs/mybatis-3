@@ -55,6 +55,7 @@ public class ResultSetWrapper {
     this.resultSet = rs;
     final ResultSetMetaData metaData = rs.getMetaData();
     final int columnCount = metaData.getColumnCount();
+    //遍历 ResultSetMetaData 的字段们，解析出 columnNames、jdbcTypes、classNames 属性
     for (int i = 1; i <= columnCount; i++) {
       columnNames.add(configuration.isUseColumnLabel() ? metaData.getColumnLabel(i) : metaData.getColumnName(i));
       jdbcTypes.add(JdbcType.forCode(metaData.getColumnType(i)));
@@ -98,6 +99,7 @@ public class ResultSetWrapper {
    */
   public TypeHandler<?> getTypeHandler(Class<?> propertyType, String columnName) {
     TypeHandler<?> handler = null;
+    //先从Map中获取TypeHandler，如果获取不到，先put一个空的Map
     Map<Class<?>, TypeHandler<?>> columnHandlers = typeHandlerMap.get(columnName);
     if (columnHandlers == null) {
       columnHandlers = new HashMap<>();
@@ -106,24 +108,33 @@ public class ResultSetWrapper {
       handler = columnHandlers.get(propertyType);
     }
     if (handler == null) {
+      //获取jdbcType
       JdbcType jdbcType = getJdbcType(columnName);
+      //根据jdbcType获取响应的处理器
       handler = typeHandlerRegistry.getTypeHandler(propertyType, jdbcType);
       // Replicate logic of UnknownTypeHandler#resolveTypeHandler
       // See issue #59 comment 10
       if (handler == null || handler instanceof UnknownTypeHandler) {
+        //依旧未获取到的情况下
         final int index = columnNames.indexOf(columnName);
+        //根据index获取对应的javaType
         final Class<?> javaType = resolveClass(classNames.get(index));
         if (javaType != null && jdbcType != null) {
+          //根据jddbcType和javaType获取对应的处理器
           handler = typeHandlerRegistry.getTypeHandler(javaType, jdbcType);
         } else if (javaType != null) {
+          //根据JavaType获取对应的处理器
           handler = typeHandlerRegistry.getTypeHandler(javaType);
         } else if (jdbcType != null) {
+          //根据jdbcType获取对应的处理器
           handler = typeHandlerRegistry.getTypeHandler(jdbcType);
         }
       }
       if (handler == null || handler instanceof UnknownTypeHandler) {
+        //依旧为空，设置为默认的ObjectTypeHandler
         handler = new ObjectTypeHandler();
       }
+      //添加到Handler中
       columnHandlers.put(propertyType, handler);
     }
     return handler;
@@ -142,6 +153,7 @@ public class ResultSetWrapper {
   }
 
   private void loadMappedAndUnmappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
+    //加载有映射和没有映射的字段
     List<String> mappedColumnNames = new ArrayList<>();
     List<String> unmappedColumnNames = new ArrayList<>();
     final String upperColumnPrefix = columnPrefix == null ? null : columnPrefix.toUpperCase(Locale.ENGLISH);
@@ -180,7 +192,7 @@ public class ResultSetWrapper {
     return resultMap.getId() + ":" + columnPrefix;
   }
 
-  private Set<String> prependPrefixes(Set<String> columnNames, String prefix) {
+  private Set<String>  prependPrefixes(Set<String> columnNames, String prefix) {
     if (columnNames == null || columnNames.isEmpty() || prefix == null || prefix.length() == 0) {
       return columnNames;
     }

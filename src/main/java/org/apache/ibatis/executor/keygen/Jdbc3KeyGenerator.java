@@ -38,6 +38,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 /**
  * @author Clinton Begin
  * @author Kazuki Shimizu
+ *
  */
 public class Jdbc3KeyGenerator implements KeyGenerator {
 
@@ -51,6 +52,8 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
   @Override
   public void processBefore(Executor executor, MappedStatement ms, Statement stmt, Object parameter) {
     // do nothing
+    // 空实现。因为对于 Jdbc3KeyGenerator 类的主键，是在 SQL 执行后，才生成。
+
   }
 
   @Override
@@ -59,17 +62,22 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
   }
 
   public void processBatch(MappedStatement ms, Statement stmt, Object parameter) {
+    // <1> 获得主键属性的配置。如果为空，则直接返回，说明不需要主键
     final String[] keyProperties = ms.getKeyProperties();
     if (keyProperties == null || keyProperties.length == 0) {
       return;
     }
+    //获取返回的自增主键
     try (ResultSet rs = stmt.getGeneratedKeys()) {
       final Configuration configuration = ms.getConfiguration();
       if (rs.getMetaData().getColumnCount() >= keyProperties.length) {
+        //获取唯一的参数对象
         Object soleParam = getSoleParameter(parameter);
         if (soleParam != null) {
+          //应用主键到参数中
           assignKeysToParam(configuration, rs, keyProperties, soleParam);
         } else {
+          //应用主键到参数中
           assignKeysToOneOfParams(configuration, rs, keyProperties, (Map<?, ?>) parameter);
         }
       }

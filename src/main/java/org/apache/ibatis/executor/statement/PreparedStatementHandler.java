@@ -44,10 +44,14 @@ public class PreparedStatementHandler extends BaseStatementHandler {
   @Override
   public int update(Statement statement) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
+    //执行
     ps.execute();
+    //获取更新行乎
     int rows = ps.getUpdateCount();
     Object parameterObject = boundSql.getParameterObject();
+    //获取keyGenerator
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
+    //kenGneerator后置处理
     keyGenerator.processAfter(executor, mappedStatement, ps, parameterObject);
     return rows;
   }
@@ -61,7 +65,9 @@ public class PreparedStatementHandler extends BaseStatementHandler {
   @Override
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
+    //执行查询
     ps.execute();
+    //处理返回结果
     return resultSetHandler.handleResultSets(ps);
   }
 
@@ -74,6 +80,7 @@ public class PreparedStatementHandler extends BaseStatementHandler {
 
   @Override
   protected Statement instantiateStatement(Connection connection) throws SQLException {
+    //实例化statement
     String sql = boundSql.getSql();
     if (mappedStatement.getKeyGenerator() instanceof Jdbc3KeyGenerator) {
       String[] keyColumnNames = mappedStatement.getKeyColumns();
